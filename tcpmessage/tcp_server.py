@@ -7,10 +7,11 @@ def handle_client(client, addr):
     print("Connected:", addr)
     while True:
         # Прослушиваем и получаем данные по 1 килобайту
-        data = client.recv(1024)
+        data = client.recv(1024)#можно поставить 4096 байт
         if not data:
             break
-        print(f"Connected:{addr}: {data.decode()}")
+        print(f"Connected:{addr}: {data.decode()}")#decode('ascii') - сохраняем байтовые данные и преобразуем их из кодировки ASCII
+    # закрываем соединение с клиентом
     client.close()
     print("Disconnected:", addr)
 
@@ -31,4 +32,6 @@ while True:
         args=(client, addr)
     )
     thread.start()
+    # закрываем соединение с сервером
+    s.close()
 

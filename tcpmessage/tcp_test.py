@@ -10,6 +10,7 @@ while 1:
     try:
         text = input()
         s.send(bytes(f'{text}', encoding = 'UTF-8'))  # отправляем сообщение
+        #s.send(str(result)+'\n'.encode('utf-8'))
     except KeyboardInterrupt:
         s.close()
         break
