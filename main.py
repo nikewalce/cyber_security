@@ -10,13 +10,13 @@ s.bind(('127.0.0.1', 8888))
 s.listen(5)
 while 1:
     try:
-        #addr - данные об отправителе, client - экземпляр класса socket
+        # addr - данные об отправителе, client - экземпляр класса socket
         client, addr = s.accept()
-    #обработчик остановки работы программы с клавиатуры
+    # обработчик остановки работы программы с клавиатуры
     except KeyboardInterrupt:
         s.close()
         break
     else:
         # Прослушиваем и получаем данные по 1 килобайту
-        result =client.recv(1024)
+        result = client.recv(1024)
         print('Message decode:', result.decode('utf-8'))
