@@ -15,8 +15,6 @@ def handle_client(client, addr):
     client.close()
     print("Disconnected:", addr)
 
-#Создаем место для обмена данными
-#SOCK_STREAM - TCP, SOCK_DGRAM - UDP, AF_INET -IPv4
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #Резервируем адрес и порт для прослушивания и приема пакетов информации
 s.bind(('127.0.0.1', 8888))
