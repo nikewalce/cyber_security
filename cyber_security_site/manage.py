@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""Главный управляющий файл, с помощью которого происходит управление проектом"""
 import os
 import sys
 
