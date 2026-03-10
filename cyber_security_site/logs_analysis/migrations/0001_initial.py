@@ -8,27 +8,48 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='LogFile',
+            name="LogFile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('description', models.TextField()),
-                ('file', models.FileField(upload_to='logs/')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("description", models.TextField()),
+                ("file", models.FileField(upload_to="logs/")),
             ],
         ),
         migrations.CreateModel(
-            name='LogEvent',
+            name="LogEvent",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('timestamp', models.DateTimeField()),
-                ('event_type', models.CharField(max_length=100)),
-                ('message', models.TextField()),
-                ('log', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='logs_analysis.logfile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("timestamp", models.DateTimeField()),
+                ("event_type", models.CharField(max_length=100)),
+                ("message", models.TextField()),
+                (
+                    "log",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="logs_analysis.logfile",
+                    ),
+                ),
             ],
         ),
     ]

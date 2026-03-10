@@ -1,0 +1,11 @@
+[flake8]
+max-line-length = 88        # Длина строки, совместимо с Black
+extend-ignore = E203, W503  # Игнорируем конфликты с Black
+exclude =
+    .git,
+    __pycache__,
+    env,
+    venv,
+    migrations,
+    node_modules,
+    static

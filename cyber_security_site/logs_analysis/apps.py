@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class LogsAnalysisConfig(AppConfig):
-    name = 'logs_analysis'
+    name = "logs_analysis"
