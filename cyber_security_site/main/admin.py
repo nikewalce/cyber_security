@@ -21,3 +21,5 @@ class NewsAdmin(admin.ModelAdmin):
     )
     # Сортировка по дате (новые сверху)
     ordering = ("-created_at",)
+    # эта строка делает автоматическую генерацию slug из title
+    prepopulated_fields = {"slug": ("title",)}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="display: flex; gap: 2rem;">
+
+    <!-- Боковая панель со списком всех новостей -->
+    <aside style="flex: 1; border-right: 1px solid #ccc; padding-right: 1rem;">
+        <h2>Все новости</h2>
+        <ul>
+            {% for n in news %}
+            <li>
+                <a href="{% url 'cybersecurity_news_detail' news_slug=n.slug %}">
+                    {{ n.title|truncatechars:40 }}
+                </a>
+                <br>
+                <small>{{ n.created_at|date:"d M Y" }}</small>
+            </li>
+            {% endfor %}
+        </ul>
+    </aside>
+
+    <!-- Основная панель с конкретной новостью -->
+    <main style="flex: 3; padding-left: 1rem;">
+        {% if item %}
+            <h1>{{ item.title }}</h1>
+            <p><em>{{ item.created_at|date:"d M Y H:i" }}</em></p>
+            <div>{{ item.content|linebreaks }}</div>
+        {% else %}
+            <h1>Выберите новость для просмотра</h1>
+            <p>Нажмите на заголовок новости в левой панели.</p>
+        {% endif %}
+    </main>
+
+</div>
+{% endblock %}

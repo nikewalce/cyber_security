@@ -114,7 +114,7 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         # папки, где искать шаблоны
         # если пусто — Django ищет templates внутри каждого приложения
-        "DIRS": [],
+        'DIRS': [BASE_DIR / 'templates'],  # <-- глобальные шаблоны
         # разрешает автоматически искать папку templates в приложениях
         "APP_DIRS": True,
         "OPTIONS": {

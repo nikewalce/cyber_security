@@ -10,6 +10,8 @@ class News(models.Model):
     content = models.TextField()
     # Дата создания
     created_at = models.DateTimeField(auto_now_add=True)
+    # Slug для URL
+    slug = models.SlugField(unique=True)
 
     class Meta:
         # Сортировка по названию
