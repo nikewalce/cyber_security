@@ -2,15 +2,21 @@ from django.shortcuts import get_object_or_404, render
 
 from .models import News
 
+
 def home(request):
     """
     Главная страница сайта.
     Просто перенаправляем на новости или показываем последние 5 новостей.
     """
-    latest_news = News.objects.all().order_by('-created_at')[:5]  # последние 5 новостей
-    return render(request, 'main/home.html', {
-        'latest_news': latest_news,
-    })
+    latest_news = News.objects.all().order_by("-created_at")[:5]  # последние 5 новостей
+    return render(
+        request,
+        "main/home.html",
+        {
+            "latest_news": latest_news,
+        },
+    )
+
 
 # Функциональное представление для вывода новостей
 def cybersecurity_news(request, news_slug=None):

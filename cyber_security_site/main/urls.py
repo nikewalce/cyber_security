@@ -4,7 +4,7 @@ from . import views  # Импортируем views из текущего при
 
 # Список маршрутов (URL patterns) для приложения main
 urlpatterns = [
-    path('', views.home, name='home'),  # главная страница
+    path("", views.home, name="home"),  # главная страница
     # URL для отображения всех новостей
     # /news/ → вызовет функцию cybersecurity_news без аргумента news_slug
     path("news/", views.cybersecurity_news, name="cybersecurity_news"),

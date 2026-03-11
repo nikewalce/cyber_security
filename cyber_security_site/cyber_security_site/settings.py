@@ -23,7 +23,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # Если False:
 # - ошибки скрываются (для безопасности в production)
 # os.getenv("DEBUG") берет значение из переменной окружения (.env)
-DEBUG = os.getenv("DEBUG")
+DEBUG = bool(os.getenv("DEBUG"))
 # ALLOWED_HOSTS — список доменов, с которых разрешено открывать сайт.
 # Это защита от Host Header Attack.
 # В разработке обычно оставляют пустым или добавляют localhost.
@@ -114,7 +114,7 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         # папки, где искать шаблоны
         # если пусто — Django ищет templates внутри каждого приложения
-        'DIRS': [BASE_DIR / 'templates'],  # <-- глобальные шаблоны
+        "DIRS": [BASE_DIR / "templates"],  # <-- глобальные шаблоны
         # разрешает автоматически искать папку templates в приложениях
         "APP_DIRS": True,
         "OPTIONS": {
@@ -176,5 +176,7 @@ USE_TZ = True
 # URL для статических файлов (CSS, JS, изображения)
 # пример: example.com/static/style.css
 STATIC_URL = "static/"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 # использовать кастомную модель пользователя
 AUTH_USER_MODEL = "accounts.User"
