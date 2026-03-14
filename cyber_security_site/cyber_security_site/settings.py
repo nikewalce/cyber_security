@@ -176,7 +176,10 @@ USE_TZ = True
 # URL для статических файлов (CSS, JS, изображения)
 # пример: example.com/static/style.css
 STATIC_URL = "static/"
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+STATICFILES_DIRS = [
+    BASE_DIR / "static"
+]
+MEDIA_URL = '/media/'  # URL для доступа к файлам
+MEDIA_ROOT = BASE_DIR / 'media'  # Папка, где будут физически храниться загруженные файлы
 # использовать кастомную модель пользователя
 AUTH_USER_MODEL = "accounts.User"

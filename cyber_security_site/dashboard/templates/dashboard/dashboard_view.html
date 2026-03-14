@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<h1>Прогресс пользователей</h1>
+
+<div class="users-grid">
+
+{% for progress in users %}
+
+<div class="user-card">
+
+    <div class="avatar">
+        {% if progress.user.avatar %}
+            <img src="{{ progress.user.avatar.url }}">
+        {% else %}
+            <img src="{% static 'images/default-avatar.jpg' %}">
+        {% endif %}
+    </div>
+
+    <h2>{{ progress.user.username }}</h2>
+
+    <p class="skill">
+        {{ progress.user.skill_level }}
+    </p>
+
+    <div class="stats">
+
+        <div class="stat">
+            <span class="number">
+                {{ progress.completed_labs }}
+            </span>
+            <span class="label">
+                Labs
+            </span>
+        </div>
+
+        <div class="stat">
+            <span class="number">
+                {{ progress.completed_articles }}
+            </span>
+            <span class="label">
+                Articles
+            </span>
+        </div>
+
+    </div>
+
+    {% if progress.user.github %}
+    <a href="{{ progress.user.github }}" class="github">
+        GitHub
+    </a>
+    {% endif %}
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

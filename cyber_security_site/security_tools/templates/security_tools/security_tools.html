@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Инструменты кибербезопасности{% endblock %}
+
+{% block content %}
+<h1>Инструменты кибербезопасности</h1>
+
+{% if security_tools %}
+    <ul>
+    {% for tool in security_tools %}
+        <li style="margin-bottom: 2rem; padding: 1rem; border: 1px solid #ccc; border-radius: 5px;">
+            <h2>{{ tool.name }}</h2>
+            <p>{{ tool.description }}</p>
+
+            {% if tool.official_site %}
+                <p>Официальный сайт: <a href="{{ tool.official_site }}" target="_blank">{{ tool.official_site }}</a></p>
+            {% endif %}
+
+            {% if tool.github %}
+                <p>GitHub: <a href="{{ tool.github }}" target="_blank">{{ tool.github }}</a></p>
+            {% endif %}
+
+            <p>Сложность: {{ tool.difficulty }}</p>
+
+            <h3>Используется в шагах roadmap:</h3>
+            {% if tool.steps.all %}
+                <ul>
+                {% for step in tool.steps.all %}
+                    <li>
+                        {{ step.title }} (Roadmap: {{ step.roadmap.title }})
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>Пока не используется ни в одном шаге.</p>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Инструменты не найдены.</p>
+{% endif %}
+{% endblock %}

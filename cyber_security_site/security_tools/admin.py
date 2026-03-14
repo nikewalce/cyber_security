@@ -23,3 +23,9 @@ class SecurityToolAdmin(admin.ModelAdmin):
     list_filter = ("difficulty",)
     # Автоматическое создание slug из name
     prepopulated_fields = {"slug": ("name",)}
+    readonly_fields = ("steps_used_in_list",)
+
+    def steps_used_in_list(self, obj):
+        return ", ".join([step.title for step in obj.steps.all()])
+
+    steps_used_in_list.short_description = "Используется в шагах"

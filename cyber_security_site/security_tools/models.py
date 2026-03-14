@@ -16,3 +16,12 @@ class SecurityTool(models.Model):
     github = models.URLField(blank=True)
     # Уровень сложности изучения инструмента
     difficulty = models.CharField(max_length=50)
+
+    def steps_used_in(self):
+        """
+        Возвращает все шаги roadmap, где используется этот инструмент.
+        """
+        return self.steps.all()
+
+    def __str__(self):
+        return self.name

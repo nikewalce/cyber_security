@@ -2,6 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <title>{% block title %}Cyber Security Site{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
@@ -12,6 +14,15 @@
             <nav>
                 <a href="{% url 'home' %}" class="text-white me-3">Главная</a>
                 <a href="{% url 'cybersecurity_news' %}" class="text-white">Новости</a>
+                <a href="{% url 'accounts_view' %}" class="text-white">Пользователи</a>
+                <a href="{% url 'attack_labs' %}" class="text-white">Задания</a>
+                <a href="{% url 'ctf_platforms' %}" class="text-white">Платформы</a>
+                <a href="{% url 'dashboard' %}" class="text-white">Прогресс пользователей</a>
+                <a href="{% url 'category_list' %}" class="text-white">Категории статей</a>
+                <a href="{% url 'roadmap' %}" class="text-white">Roadmap</a>
+                <a href="{% url 'list_security_tools' %}" class="text-white">Инстурменты</a>
+
+
             </nav>
         </div>
     </header>

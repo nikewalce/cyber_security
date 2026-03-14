@@ -25,6 +25,8 @@ class RoadmapAdmin(admin.ModelAdmin):
     )
     # Встроенные шаги roadmap
     inlines = [RoadmapStepInline]
+    # Автоматически заполняет поле slug на основе title
+    prepopulated_fields = {"slug": ("title",)}
 
 
 # Регистрация шагов roadmap
@@ -39,3 +41,5 @@ class RoadmapStepAdmin(admin.ModelAdmin):
     )
     # Сортировка шагов
     ordering = ("order",)
+    prepopulated_fields = {"slug": ("title",)}
+    filter_horizontal = ('tools',)  # удобно выбирать несколько инструментов

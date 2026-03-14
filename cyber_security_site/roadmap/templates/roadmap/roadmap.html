@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h1>Roadmaps</h1>
+
+<ul>
+{% for roadmap in roadmaps %}
+<li>
+    <a href="{% url 'roadmap_steps' roadmap.slug %}">
+        {{ roadmap.title }}
+    </a>
+</li>
+{% endfor %}
+</ul>
+
+{% endblock %}

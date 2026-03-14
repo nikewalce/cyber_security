@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h1>{{ step.title }}</h1>
+
+<p>{{ step.description }}</p>
+
+<a href="{% url 'roadmap_steps' roadmap.slug %}">
+Back to roadmap
+</a>
+
+{% endblock %}

@@ -10,6 +10,9 @@ class Category(models.Model):
     # Например: web-security
     slug = models.SlugField(unique=True)
 
+    def __str__(self):
+        return self.name
+
 
 # Модель статьи
 class Article(models.Model):
@@ -35,3 +38,6 @@ class Article(models.Model):
             models.Index(fields=["title"]),
             models.Index(fields=["slug"]),
         ]
+
+    def __str__(self):
+        return self.title

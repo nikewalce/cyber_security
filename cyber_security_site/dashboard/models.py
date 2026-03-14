@@ -10,3 +10,6 @@ class UserProgress(models.Model):
     completed_labs = models.IntegerField(default=0)
     # Количество прочитанных статей / writeups
     completed_articles = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.user)

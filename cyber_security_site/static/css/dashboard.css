@@ -1,0 +1,53 @@
+.users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 250px);
+    gap: 25px;
+}
+
+.user-card {
+    background: #111;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    transition: 0.3s;
+}
+
+.user-card:hover {
+    transform: translateY(-5px);
+}
+
+.avatar img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.skill {
+    color: #8aff8a;
+    font-size: 14px;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 15px;
+}
+
+.number {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.label {
+    display: block;
+    font-size: 12px;
+}
+
+.github {
+    display: inline-block;
+    margin-top: 15px;
+    color: #00ffcc;
+    text-decoration: none;
+}

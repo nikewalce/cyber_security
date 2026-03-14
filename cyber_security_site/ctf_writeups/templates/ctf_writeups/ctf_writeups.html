@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>{{ platform.name }}</h1>
+
+<ul>
+
+{% for writeup in writeups %}
+
+<li>
+
+<h3>{{ writeup.title }}</h3>
+
+<p>Difficulty: {{ writeup.difficulty }}</p>
+
+<p>{{ writeup.description }}</p>
+
+<details>
+<summary>Solution</summary>
+<p>{{ writeup.solution }}</p>
+</details>
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+{% endblock %}

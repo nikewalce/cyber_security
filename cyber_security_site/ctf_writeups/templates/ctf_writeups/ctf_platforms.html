@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>CTF Платформы</h1>
+
+<ul>
+{% for platform in platforms %}
+
+<li>
+<a href="{% url 'ctf_writeups' platform.slug %}">
+{{ platform.name }}
+</a>
+</li>
+
+{% endfor %}
+</ul>
+
+{% endblock %}
