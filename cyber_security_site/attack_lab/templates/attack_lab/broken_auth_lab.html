@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Broken Authentication Lab</h2>
+
+<form method="post">
+
+{% csrf_token %}
+
+<input name="username">
+<input name="password">
+
+<button type="submit">Login</button>
+
+</form>
+
+{% if message %}
+<p>{{ message }}</p>
+{% endif %}
+
+{% endblock %}

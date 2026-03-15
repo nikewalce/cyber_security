@@ -6,6 +6,7 @@
 - Ruff → проверка стиля (PEP8)
 Работает на Windows и Linux
 """
+
 import subprocess
 import sys
 

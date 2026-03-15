@@ -23,7 +23,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # Если False:
 # - ошибки скрываются (для безопасности в production)
 # os.getenv("DEBUG") берет значение из переменной окружения (.env)
-DEBUG = bool(os.getenv("DEBUG"))
+DEBUG = os.getenv("DEBUG", "False").lower() in ("1", "true", "yes")
 # ALLOWED_HOSTS — список доменов, с которых разрешено открывать сайт.
 # Это защита от Host Header Attack.
 # В разработке обычно оставляют пустым или добавляют localhost.
@@ -176,10 +176,10 @@ USE_TZ = True
 # URL для статических файлов (CSS, JS, изображения)
 # пример: example.com/static/style.css
 STATIC_URL = "static/"
-STATICFILES_DIRS = [
-    BASE_DIR / "static"
-]
-MEDIA_URL = '/media/'  # URL для доступа к файлам
-MEDIA_ROOT = BASE_DIR / 'media'  # Папка, где будут физически храниться загруженные файлы
+STATICFILES_DIRS = [BASE_DIR / "static"]
+MEDIA_URL = "/media/"  # URL для доступа к файлам
+MEDIA_ROOT = (
+    BASE_DIR / "media"
+)  # Папка, где будут физически храниться загруженные файлы
 # использовать кастомную модель пользователя
 AUTH_USER_MODEL = "accounts.User"

@@ -20,14 +20,12 @@ class Writeup(models.Model):
     title = models.CharField(max_length=200)
 
     # Платформа, на которой находится задание
-    #HackTheBox
+    # HackTheBox
     # ├── Blue
     # ├── Lame
     # └── Optimum
     platform = models.ForeignKey(
-        CTFPlatform,
-        on_delete=models.CASCADE,
-        related_name="writeups"
+        CTFPlatform, on_delete=models.CASCADE, related_name="writeups"
     )
     # Сложность задания
     difficulty = models.CharField(max_length=50)
@@ -37,5 +35,6 @@ class Writeup(models.Model):
     solution = models.TextField()
     # slug для красивого URL
     slug = models.SlugField(unique=True)
+
     def __str__(self):
         return self.title

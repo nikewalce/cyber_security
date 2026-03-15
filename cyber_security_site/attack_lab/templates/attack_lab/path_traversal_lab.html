@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Path Traversal Lab</h2>
+
+<form method="get">
+
+    <input name="file" placeholder="notes.txt">
+
+    <button type="submit">Open</button>
+
+</form>
+
+{% if content %}
+<pre>{{ content }}</pre>
+{% endif %}
+
+{% endblock %}

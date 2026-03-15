@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
+
 from .models import CTFPlatform
 
 
@@ -8,11 +9,7 @@ def ctf_platforms(request):
     # Django делает SQL запрос: SELECT * FROM ctfplatform;
     platforms = CTFPlatform.objects.all()
     # Берём HTML шаблон, вставляем туда данные, отправляем пользователю
-    return render(
-        request,
-        "ctf_writeups/ctf_platforms.html",
-        {"platforms": platforms}
-    )
+    return render(request, "ctf_writeups/ctf_platforms.html", {"platforms": platforms})
 
 
 # Страница с заданиями конкретной платформы
@@ -31,8 +28,5 @@ def ctf_writeups(request, platform_slug):
     return render(
         request,
         "ctf_writeups/ctf_writeups.html",
-        {
-            "platform": platform,
-            "writeups": writeups
-        }
+        {"platform": platform, "writeups": writeups},
     )

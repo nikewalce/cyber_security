@@ -1,22 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Лаборатория по атакам</h1>
+<h1>Attack Lab — Полигон уязвимостей</h1>
 
-<!--
-<h2>Последние новости</h2>
+<p>Здесь можно безопасно изучать распространённые уязвимости веб‑приложений.</p>
+
 <ul>
-    {% for n in latest_news %}
-    <li>
-        <a href="{% url 'cybersecurity_news_detail' news_slug=n.slug %}">
-            {{ n.title }} - {{ n.created_at|date:"d M Y" }}
-        </a>
-    </li>
-    {% endfor %}
-</ul>
+    <li><a href="{% url 'xss_lab' %}">Reflected XSS Lab</a></li>
+    <li><a href="{% url 'sqli_lab' %}">SQL Injection Lab</a></li>
+    <li><a href="{% url 'csrf_lab' %}">CSRF Lab</a></li>
+    <li><a href="{% url 'upload_lab' %}">File Upload Lab</a></li>
+    <li><a href="{% url 'idor_lab' %}">IDOR Lab</a></li>
 
-<p>
-    <a href="{% url 'cybersecurity_news' %}">Смотреть все новости</a>
-</p>
--->
+    <li><a href="/attack-lab/ssrf/">SSRF</a></li>
+    <li><a href="/attack-lab/command/">Command Injection</a></li>
+    <li><a href="/attack-lab/path-traversal/">Path Traversal</a></li>
+    <li><a href="/attack-lab/jwt/">JWT Attack</a></li>
+    <li><a href="/attack-lab/auth/">Broken Authentication</a></li>
+</ul>
 {% endblock %}

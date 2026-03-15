@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>SQL Injection Lab</h2>
+
+<p style="color:red;">
+⚠ WARNING: This page intentionally contains vulnerable SQL code.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    <input name="username" placeholder="username">
+    <input name="password" placeholder="password">
+
+    <button type="submit">Login</button>
+</form>
+
+{% if result %}
+<p>Login successful!</p>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>File Upload Lab</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <input type="file" name="file">
+
+    <button type="submit">Upload</button>
+</form>
+
+{% if file_url %}
+<p>Uploaded file:</p>
+<a href="{{ file_url }}">{{ file_url }}</a>
+{% endif %}
+
+{% endblock %}

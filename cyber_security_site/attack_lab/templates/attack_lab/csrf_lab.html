@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>CSRF Lab</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <input name="amount" placeholder="Amount">
+
+    <button type="submit">Transfer</button>
+</form>
+
+{% if message %}
+<p>{{ message }}</p>
+{% endif %}
+
+{% endblock %}

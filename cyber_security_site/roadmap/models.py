@@ -1,9 +1,11 @@
 # Импорт моделей Django
 from django.db import models
+
 # Что делает slugify: переводит текст в lowercase (Web Pentesting → web pentesting)
 # удаляет спецсимволы (SQL Injection!!! → sql injection)
 # заменяет пробелы на дефис (sql injection → sql-injection)
 from django.utils.text import slugify
+
 
 # Модель Roadmap (план обучения)
 class Roadmap(models.Model):
@@ -33,7 +35,10 @@ class RoadmapStep(models.Model):
     # связь с инструментами
     # один шаг roadmap может включать несколько инструментов
     # один инструмент может использоваться в нескольких шагах
-    tools = models.ManyToManyField('security_tools.SecurityTool', blank=True, related_name='steps')
+    tools = models.ManyToManyField(
+        "security_tools.SecurityTool", blank=True, related_name="steps"
+    )
+
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.title)
@@ -48,10 +53,7 @@ class RoadmapStep(models.Model):
 
     # чтобы order был уникальный
     class Meta:
-        unique_together = [
-            ["roadmap", "order"],
-            ["roadmap", "slug"]
-        ]
+        unique_together = [["roadmap", "order"], ["roadmap", "slug"]]
         ordering = ["order"]
 
     def __str__(self):

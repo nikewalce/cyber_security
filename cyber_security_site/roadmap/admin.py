@@ -42,4 +42,4 @@ class RoadmapStepAdmin(admin.ModelAdmin):
     # Сортировка шагов
     ordering = ("order",)
     prepopulated_fields = {"slug": ("title",)}
-    filter_horizontal = ('tools',)  # удобно выбирать несколько инструментов
+    filter_horizontal = ("tools",)  # удобно выбирать несколько инструментов

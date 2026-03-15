@@ -1,0 +1,27 @@
+{% extends 'block.html' %}
+
+{% block content %}
+
+<h2>JWT Lab</h2>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <input name="username">
+
+    <button type="submit">Generate token</button>
+
+</form>
+
+{% if token %}
+
+<p><b>Token:</b></p>
+<pre>{{ token }}</pre>
+
+<p><b>Decoded:</b></p>
+<pre>{{ decoded }}</pre>
+
+{% endif %}
+
+{% endblock %}
