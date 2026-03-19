@@ -1,30 +1,36 @@
 # Импорт функции render для рендеринга HTML шаблонов
-from django.shortcuts import render
-
-# Импорт для выполнения raw SQL запросов
-from django.db import connection
-
-# Хранилище файлов Django
-from django.core.files.storage import FileSystemStorage
-
-# Модель пользователей Django
-from django.contrib.auth.models import User
-
-# Настройки Django проекта
-from django.conf import settings
-
-# Библиотека для HTTP запросов (используется в SSRF лаборатории)
-import requests
-
 # Работа с системой (для command injection)
 import os
 
 # Работа с JWT токенами
 import jwt
 
+# Библиотека для HTTP запросов (используется в SSRF лаборатории)
+import requests
+
+# Настройки Django проекта
+from django.conf import settings
+
+# Модель пользователей Django
+from django.contrib.auth.models import User
+
+# Хранилище файлов Django
+from django.core.files.storage import FileSystemStorage
+
+# Импорт для выполнения raw SQL запросов
+from django.db import connection
+from django.shortcuts import render
+
+# Импорт форм
+from .forms import CommentForm, XSSForm
+
+# Импорт моделей
+from .models import Comment
+
 # -------------------------------
 # Главная страница Attack Lab
 # -------------------------------
+
 
 def attack_lab_view(request):
     """
@@ -38,33 +44,144 @@ def attack_lab_view(request):
 # XSS Lab
 # -------------------------------
 
-def xss_lab(request):
+
+def xss_reflected(request):
     """
     Reflected XSS лаборатория.
 
-    Payload для теста:
-    <script>alert(1)</script>
+    Reflected XSS = вредоносный payload приходит в запросе
+    и сразу отражается в ответе сервера.
+
+    Пример:
+    /xss?q=<script>alert(1)</script>
+
+    Браузер выполнит JS → XSS
+
+    - vulnerable → без защиты (уязвимость)
+    - secure → через Django Form (защита)
     """
-
-    # Получаем значение параметра q из URL
-    query = request.GET.get("q", "")
-
-    # Режим лаборатории
-    # vulnerable — уязвимый
-    # secure — защищённый
+    # 🔧 режим работы (по умолчанию уязвимый)
     mode = request.GET.get("mode", "vulnerable")
 
-    context = {
-        "query": query,
-        "mode": mode
-    }
+    # 🔒 включение CSP (дополнительная защита браузера)
+    csp_mode = request.GET.get("csp", "off")
 
-    return render(request, "attack_lab/xss_lab.html", context)
+    # 📥 входные данные от пользователя (главный источник XSS)
+    query = request.GET.get("q", "")
+
+    form = None
+
+    # 🛡️ SECURE режим
+    if mode == "secure":
+        # Используем Django Form как слой валидации
+        form = XSSForm({"query": query})
+
+        if form.is_valid():
+            # cleaned_data → безопасные данные
+            query = form.cleaned_data["query"]
+    # 🛡️ SUPER SECURE (жесткое экранирование)
+    elif mode == "super_secure":
+        from django.utils.html import escape
+
+        query = escape(query)
+    # ❌ VULNERABLE режим
+    else:
+        # НИЧЕГО НЕ ДЕЛАЕМ → payload пройдет как есть
+        pass
+
+    # 📦 передаем данные в шаблон
+    context = {"query": query, "mode": mode, "form": form, "csp": csp_mode}
+
+    response = render(request, "attack_lab/xss_lab.html", context)
+
+    # 🛡️ CSP защита (на уровне браузера)
+    if csp_mode == "on":
+        # default-src 'self' → ВСЕ ресурсы (картинки, стили, скрипты) можно грузить только с домена хоста
+        # script-src 'self' → JS можно грузить только с сайта хоста
+        # оставлять только вышеописанное опасно, т.к. <script>alert(1)</script> это inline script, а не внешний файл
+        # CSP его иногда не блокирует (зависит от браузера и политики)
+        # object-src 'none' Запрещает:<object>, <embed>,<applet> Это старые способы XSS (но все еще используются)
+        # base-uri 'self' Запрещает подмену <base> Атака: <base href="https://evil.com/"> все ссылки станут вести на злоумышленника
+        response["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'"
+        )
+
+    return response
+
+
+def xss_stored(request):
+    """
+    📚 Stored XSS лаборатория
+
+    Stored XSS = вредоносный код сохраняется в базе данных
+    и выполняется каждый раз, когда страница загружается.
+
+    Поток атаки:
+    User → вводит payload → сохраняется в DB → другой пользователь открывает страницу → JS выполняется
+    """
+
+    # ⚙️ режим работы (берем из POST или GET)
+    mode = request.POST.get("mode") or request.GET.get("mode", "vulnerable")
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        # 🧹 Очистка базы (для удобства тестирования)
+        if action == "clear":
+            Comment.objects.all().delete()
+
+        else:
+            # 📥 пользовательский ввод (потенциальный XSS payload)
+            text = request.POST.get("text", "")
+
+            # ⚠️ Secure режим (через Django Form)
+            if mode == "secure":
+                form = CommentForm({"text": text})
+                if form.is_valid():
+                    text = form.cleaned_data["text"]
+
+            # 🛡️ Super Secure режим (принудительное экранирование)
+            elif mode == "super_secure":
+                from django.utils.html import escape
+
+                text = escape(text)
+
+            # ❗ ВАЖНО:
+            # В vulnerable режиме мы сохраняем payload как есть
+            # Это демонстрирует Stored XSS
+            Comment.objects.create(text=text)
+
+    # 📤 получаем комментарии
+    comments = Comment.objects.all().order_by("-id")
+
+    return render(
+        request, "attack_lab/xss_stored.html", {"comments": comments, "mode": mode}
+    )
+
+
+def xss_dom(request):
+    """
+    DOM-based XSS лаборатория (реалистичная).
+
+    Здесь сервер НЕ участвует в атаке.
+    Источник данных → location.hash
+    Sink → innerHTML (опасно!)
+
+    Пример:
+    https://site.com/xss_dom#<script>alert(1)</script>
+
+    Показано три режима:
+    - vulnerable → innerHTML, XSS срабатывает
+    - secure → innerText, безопасно
+    - super_secure → экранируем < и >, супер-защита
+    """
+    return render(request, "attack_lab/xss_dom.html")
 
 
 # -------------------------------
 # SQL Injection Lab
 # -------------------------------
+
 
 def sqli_lab(request):
     """
@@ -113,15 +230,13 @@ def sqli_lab(request):
                 cursor.execute(query, [username, password])
                 result = cursor.fetchall()
 
-    return render(request, "attack_lab/sqli_lab.html", {
-        "result": result,
-        "mode": mode
-    })
+    return render(request, "attack_lab/sqli_lab.html", {"result": result, "mode": mode})
 
 
 # -------------------------------
 # CSRF Lab
 # -------------------------------
+
 
 def csrf_lab(request):
     """
@@ -150,15 +265,15 @@ def csrf_lab(request):
             # Django автоматически проверяет CSRF токен
             message = f"Secure transfer of {amount}$"
 
-    return render(request, "attack_lab/csrf_lab.html", {
-        "message": message,
-        "mode": mode
-    })
+    return render(
+        request, "attack_lab/csrf_lab.html", {"message": message, "mode": mode}
+    )
 
 
 # -------------------------------
 # File Upload Lab
 # -------------------------------
+
 
 def upload_lab(request):
     """
@@ -202,15 +317,15 @@ def upload_lab(request):
                 filename = fs.save(uploaded_file.name, uploaded_file)
                 file_url = fs.url(filename)
 
-    return render(request, "attack_lab/upload_lab.html", {
-        "file_url": file_url,
-        "mode": mode
-    })
+    return render(
+        request, "attack_lab/upload_lab.html", {"file_url": file_url, "mode": mode}
+    )
 
 
 # -------------------------------
 # IDOR Lab
 # -------------------------------
+
 
 def idor_lab(request):
     """
@@ -245,15 +360,13 @@ def idor_lab(request):
             if request.user.is_authenticated and str(request.user.id) == user_id:
                 user = request.user
 
-    return render(request, "attack_lab/idor_lab.html", {
-        "user": user,
-        "mode": mode
-    })
+    return render(request, "attack_lab/idor_lab.html", {"user": user, "mode": mode})
 
 
 # -------------------------------
 # SSRF Lab
 # -------------------------------
+
 
 def ssrf_lab(request):
     """
@@ -296,15 +409,15 @@ def ssrf_lab(request):
         except:
             response = "Request failed"
 
-    return render(request, "attack_lab/ssrf_lab.html", {
-        "response": response,
-        "mode": mode
-    })
+    return render(
+        request, "attack_lab/ssrf_lab.html", {"response": response, "mode": mode}
+    )
 
 
 # -------------------------------
 # Command Injection Lab
 # -------------------------------
+
 
 def command_injection_lab(request):
     """
@@ -334,20 +447,18 @@ def command_injection_lab(request):
             import subprocess
 
             output = subprocess.run(
-                ["ping", "-c", "1", host],
-                capture_output=True,
-                text=True
+                ["ping", "-c", "1", host], capture_output=True, text=True
             ).stdout
 
-    return render(request, "attack_lab/command_lab.html", {
-        "output": output,
-        "mode": mode
-    })
+    return render(
+        request, "attack_lab/command_lab.html", {"output": output, "mode": mode}
+    )
 
 
 # -------------------------------
 # Path Traversal Lab
 # -------------------------------
+
 
 def path_traversal_lab(request):
     """
@@ -386,10 +497,11 @@ def path_traversal_lab(request):
             if not content:
                 content = "File not found"
 
-    return render(request, "attack_lab/path_traversal_lab.html", {
-        "content": content,
-        "mode": mode
-    })
+    return render(
+        request,
+        "attack_lab/path_traversal_lab.html",
+        {"content": content, "mode": mode},
+    )
 
 
 # -------------------------------
@@ -397,6 +509,7 @@ def path_traversal_lab(request):
 # -------------------------------
 
 SECRET = "secret123"
+
 
 def jwt_lab(request):
     """
@@ -423,22 +536,20 @@ def jwt_lab(request):
 
             # БЕЗОПАСНАЯ версия
             decoded = jwt.decode(
-                token,
-                SECRET,
-                algorithms=["HS256"],
-                options={"require": ["exp"]}
+                token, SECRET, algorithms=["HS256"], options={"require": ["exp"]}
             )
 
-    return render(request, "attack_lab/jwt_lab.html", {
-        "token": token,
-        "decoded": decoded,
-        "mode": mode
-    })
+    return render(
+        request,
+        "attack_lab/jwt_lab.html",
+        {"token": token, "decoded": decoded, "mode": mode},
+    )
 
 
 # -------------------------------
 # Broken Authentication Lab
 # -------------------------------
+
 
 def broken_auth_lab(request):
     """
@@ -472,7 +583,6 @@ def broken_auth_lab(request):
             else:
                 message = "Login failed"
 
-    return render(request, "attack_lab/broken_auth_lab.html", {
-        "message": message,
-        "mode": mode
-    })
+    return render(
+        request, "attack_lab/broken_auth_lab.html", {"message": message, "mode": mode}
+    )

@@ -1,0 +1,405 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- 🔗 НАВИГАЦИЯ -->
+<nav>
+    <a href="{% url 'xss_reflected' %}"
+       class="{% if request.resolver_match.url_name == 'xss_reflected' %}fw-bold text-warning{% else %}text-grey{% endif %}">
+        Reflected XSS
+    </a>
+
+    |
+
+    <a href="{% url 'xss_stored' %}"
+       class="{% if request.resolver_match.url_name == 'xss_stored' %}fw-bold text-warning{% else %}text-grey{% endif %}">
+        Stored XSS
+    </a>
+
+    |
+
+    <a href="{% url 'xss_dom' %}"
+       class="{% if request.resolver_match.url_name == 'xss_dom' %}fw-bold text-warning{% else %}text-grey{% endif %}">
+        DOM XSS
+    </a>
+</nav>
+
+<hr>
+
+<div style="
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 25px;
+    margin: 30px 0;
+    position: relative;
+    overflow: hidden;
+">
+    <!-- Градиентная рамка -->
+    <div style="
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #e53e3e, #dd6b20, #ecc94b);
+        border-radius: 12px;
+        z-index: -1;
+    "></div>
+
+    <div style="position: relative; z-index: 1;">
+        <h2 style="
+            color: #fed7d7;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8em;
+        ">
+            <span style="font-size: 1.5em;">🛡️</span>
+            Stored XSS
+        </h2>
+
+        <!-- 📚 ОБУЧАЮЩИЙ БЛОК -->
+        <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 20px; margin: 25px 0;">
+            <h3 style="
+                color: #f6e05e;
+                margin-top: 0;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            ">
+                <span style="font-size: 0.9em;">📚</span> Stored XSS (справочник + практика)
+            </h3>
+
+            <hr style="border-color: #4a5568; margin: 15px 0;">
+
+            <h4 style="
+                color: #e53e3e;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 10px;
+            ">
+                <span style="font-size: 0.9em;">💥</span> Как работает Stored XSS?
+            </h4>
+            <p style="color: #e2e8f0;">
+                Пользователь вводит данные → сервер сохраняет их в базу →
+                другой пользователь открывает страницу → браузер выполняет код.
+            </p>
+
+            <pre style="
+                background: #1a202c;
+                border: 1px solid #4a5568;
+                padding: 15px;
+                border-radius: 8px;
+                color: #c3daff;
+                font-family: monospace;
+            ">User → input → Database → Page → Browser executes JS</pre>
+
+            <hr style="border-color: #4a5568; margin: 20px 0;">
+
+            <h4 style="
+                color: #e53e3e;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 10px;
+            ">
+                <span style="font-size: 0.9em;">🔥</span> Пример атаки
+            </h4>
+            <pre style="
+                background: #1a202c;
+                border: 1px solid #4a5568;
+                padding: 15px;
+                border-radius: 8px;
+                color: #fed7d7;
+                font-family: monospace;
+            ">&lt;script&gt;alert("Hacked")&lt;/script&gt;</pre>
+            <p style="color: #e2e8f0; margin-top: 10px;">
+                Этот код сохранится и выполнится у всех пользователей.
+            </p>
+
+            <hr style="border-color: #4a5568; margin: 20px 0;">
+
+            <h4 style="
+                color: #ecc94b;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 10px;
+            ">
+                <span style="font-size: 0.9em;">🍪</span> Cookie и XSS
+            </h4>
+            <pre style="
+                background: #1a202c;
+                border: 1px solid #4a5568;
+                padding: 15px;
+                border-radius: 8px;
+                color: #fed7d7;
+                font-family: monospace;
+            ">&lt;script&gt;\nalert(document.cookie)\n&lt;/script&gt;</pre>
+            <p style="color: #e2e8f0; margin-top: 10px;">
+                Если cookie НЕ защищены (нет HttpOnly),
+                их можно украсть через XSS.
+            </p>
+            <button onclick="showCookie()" style="
+                padding: 8px 16px;
+                background: #48bb78;
+                border: none;
+                border-radius: 6px;
+                color: white;
+                cursor: pointer;
+                margin-top: 10px;
+            ">Показать cookie</button>
+            <script>
+                function showCookie() {
+                    alert(document.cookie);
+                }
+            </script>
+
+            <hr style="border-color: #4a5568; margin: 20px 0;">
+
+            <h4 style="
+                color: #48bb78;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 10px;
+            ">
+                <span style="font-size: 0.9em;">🛡️</span> Защита
+            </h4>
+            <ul style="color: #e2e8f0;">
+                <li>Django autoescape</li>
+                <li>Form validation</li>
+                <li>escape()</li>
+                <li>CSP</li>
+                <li>HttpOnly cookies</li>
+            </ul>
+
+            <hr style="border-color: #4a5568; margin: 20px 0;">
+
+            <h4 style="
+                color: #3182ce;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 10px;
+            ">
+                <span style="font-size: 0.9em;">🧰</span> Режимы
+            </h4>
+            <ul style="color: #e2e8f0;">
+                <li>❌ Vulnerable → XSS работает</li>
+                <li>⚠️ Secure → через формы</li>
+                <li>🛡️ Super Secure → escape()</li>
+            </ul>
+
+            <hr style="border-color: #4a5568; margin: 20px 0;">
+
+            <h4 style="
+                color: #9f7aea;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 10px;
+            ">
+                <span style="font-size: 0.9em;">🎯</span> Попробуй
+            </h4>
+            <ul style="color: #e2e8f0;">
+                <li><code style="background: #4a5568; padding: 2px 6px; border-radius: 4px;">&lt;script&gt;alert(1)&lt;/script&gt;</code></li>
+                <li><code style="background: #4a5568; padding: 2px 6px; border-radius: 4px;">&lt;img src=x onerror=alert(1)&gt;</code></li>
+            </ul>
+        </div>
+
+<!-- 📝 ФОРМА -->
+<form method="post" style="margin: 25px 0;">
+    {% csrf_token %}
+
+    <!-- ⚙️ передаём режим -->
+    <input type="hidden" name="mode" value="{{ mode }}">
+
+
+    <div style="margin-bottom: 20px;">
+        <label for="payload" style="
+            display: block;
+            color: #e2e8f0;
+            font-weight: 600;
+            margin-bottom: 8px;
+        ">Введите payload:</label>
+        <textarea
+            name="text"
+            id="payload"
+            placeholder="Введите payload"
+            style="
+                width: 100%;
+                min-height: 120px;
+                padding: 15px;
+                border-radius: 8px;
+                border: 1px solid #4a5568;
+                background: #1a202c;
+                color: #fff;
+                font-family: monospace;
+                resize: vertical;
+            "
+        ></textarea>
+    </div>
+
+    <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
+        <div style="flex: 1;">
+            <label for="mode-select" style="
+                display: block;
+                color: #e2e8f0;
+                font-weight: 600;
+                margin-bottom: 8px;
+            ">Режим:</label>
+            <select name="mode" id="mode-select" style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #4a5568;
+                background: #1a202c;
+                color: #fff;
+            ">
+                <option value="vulnerable" {% if mode == "vulnerable" %}selected{% endif %}>
+                    Vulnerable (уязвимый)
+                </option>
+                <option value="secure" {% if mode == "secure" %}selected{% endif %}>
+                    Secure (частичная защита)
+                </option>
+                <option value="super_secure" {% if mode == "super_secure" %}selected{% endif %}>
+                    Super Secure (максимальная защита)
+                </option>
+            </select>
+        </div>
+
+        <button type="submit" style="
+            padding: 12px 24px;
+            background: linear-gradient(to right, #48bb78, #38a169);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            Save
+        </button>
+    </div>
+</form>
+
+<!-- 🧹 ОЧИСТКА -->
+<form method="post" style="margin: 20px 0;">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="clear">
+    <button type="submit" style="
+        padding: 12px 24px;
+        background: linear-gradient(to right, #e53e3e, #c53030);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        🧹 Очистить комментарии
+    </button>
+</form>
+
+<hr style="border-color: #4a5568; margin: 25px 0;">
+
+<h3 style="
+    color: #f6e05e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 25px 0 15px 0;
+">
+    <span style="font-size: 0.9em;">📋</span> Комментарии:
+</h3>
+
+<!-- 📤 ВЫВОД -->
+{% for comment in comments %}
+    {% if mode == "vulnerable" %}
+        <!-- ❌ УЯЗВИМО -->
+        <div style="
+            background: #1a202c;
+            border: 2px solid #e53e3e;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #fed7d7;
+            font-family: monospace;
+        ">
+            {{ comment.text|safe }}
+        </div>
+        <p style="color: #e53e3e; margin: 5px 0 20px 0; font-size: 0.9em;">
+            ⚠️ В этом режиме XSS‑атаки работают! Будьте осторожны.
+        </p>
+    {% elif mode == "secure" %}
+        <!-- ⚠️ частичная защита -->
+        <div style="
+            background: #1a202c;
+            border: 2px solid #dd6b20;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #fed7d7;
+            font-family: monospace;
+        ">
+            {{ comment.text }}
+        </div>
+        <p style="color: #dd6b20; margin: 5px 0 20px 0; font-size: 0.9em;">
+            ⚠️ Частичная защита: некоторые XSS‑атаки заблокированы.
+        </p>
+    {% else %}
+        <!-- 🛡️ максимальная защита -->
+        <div style="
+            background: #1a202c;
+            border: 2px solid #48bb78;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #c6f6d5;
+            font-family: monospace;
+        ">
+            {{ comment.text }}
+        </div>
+        <p style="color: #48bb78; margin: 5px 0 20px 0; font-size: 0.9em;">
+            ✅ Максимальная защита: все XSS‑атаки заблокированы.
+        </p>
+    {% endif %}
+{% endfor %}
+
+
+<!-- 📊 текущий режим -->
+<div style="
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 25px 0;
+    text-align: center;
+">
+    <p style="margin: 0; color: #e2e8f0;">
+        Режим:
+        <b style="
+            padding: 8px 16px;
+            border-radius: 6px;
+            {% if mode == "vulnerable" %}
+                background: #e53e3e; color: white;
+            {% elif mode == "secure" %}
+                background: #dd6b20; color: white;
+            {% elif mode == "super_secure" %}
+                background: #48bb78; color: white;
+            {% endif %}
+        ">
+            {% if mode == "vulnerable" %}
+                ❌ Vulnerable
+            {% elif mode == "secure" %}
+                ⚠️ Secure
+            {% elif mode == "super_secure" %}
+                🛡️ Super Secure
+            {% endif %}
+        </b>
+    </p>
+</div>
+
+{% endblock %}

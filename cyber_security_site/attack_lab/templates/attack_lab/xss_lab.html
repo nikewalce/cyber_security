@@ -1,32 +1,357 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Reflected XSS Lab</h2>
+<h1>XSS Lab</h1>
 
-<form method="get">
-    <input type="text" name="q" placeholder="Search...">
+<!-- 🔗 НАВИГАЦИЯ -->
+<nav>
+    <a href="{% url 'xss_reflected' %}"
+       class="{% if request.resolver_match.url_name == 'xss_reflected' %}fw-bold text-warning{% else %}text-grey{% endif %}">
+        Reflected XSS
+    </a>
 
-    <select name="mode">
-        <option value="safe">Safe mode</option>
-        <option value="unsafe">Unsafe mode</option>
-    </select>
+    |
 
-    <button type="submit">Search</button>
-</form>
+    <a href="{% url 'xss_stored' %}"
+       class="{% if request.resolver_match.url_name == 'xss_stored' %}fw-bold text-warning{% else %}text-grey{% endif %}">
+        Stored XSS
+    </a>
+
+    |
+
+    <a href="{% url 'xss_dom' %}"
+       class="{% if request.resolver_match.url_name == 'xss_dom' %}fw-bold text-warning{% else %}text-grey{% endif %}">
+        DOM XSS
+    </a>
+</nav>
 
 <hr>
 
-{% if query %}
+<!-- 🔗 Объяснение -->
+<div style=padding:15px; border-radius:10px;">
+    <h2>📚 XSS (справочник + практика)</h2>
 
-<h3>Result:</h3>
+    <hr>
 
-{% if mode == "unsafe" %}
-    <!-- intentionally unsafe -->
-    {{ query|safe }}
-{% else %}
-    {{ query }}
-{% endif %}
+    <h3>💥 Что такое XSS?</h3>
+    <p>
+        XSS (Cross-Site Scripting) — это уязвимость, при которой
+        злоумышленник внедряет JavaScript в страницу.
+    </p>
 
-{% endif %}
+    <p>
+        Браузер НЕ понимает, что это атака → и выполняет код.
+    </p>
+
+    <hr>
+
+    <h3>🧪 Типы XSS</h3>
+
+    <ul>
+        <li><b>Reflected</b> → приходит из URL и сразу выполняется</li>
+        <li><b>Stored</b> → сохраняется в базе и выполняется у всех</li>
+        <li><b>DOM</b> → происходит полностью в JavaScript</li>
+    </ul>
+
+    <hr>
+
+    <h3>⚠️ Почему это опасно?</h3>
+    <ul>
+        <li>Кража cookie (сессии)</li>
+        <li>Подмена страницы</li>
+        <li>Фишинг внутри сайта</li>
+        <li>Действия от имени пользователя</li>
+    </ul>
+
+    <hr>
+
+    <h3>🍪 Cookie и XSS</h3>
+
+    <p><b>Атака:</b></p>
+    <pre>
+&lt;script&gt;
+alert(document.cookie)
+&lt;/script&gt;
+    </pre>
+
+    <p>
+        Если cookie доступны → злоумышленник может украсть сессию.
+    </p>
+
+    <p><b>Защита:</b></p>
+    <ul>
+        <li><b>HttpOnly</b> → JavaScript НЕ может читать cookie</li>
+    </ul>
+
+    <p><b>Проверка:</b></p>
+    <button onclick="showCookie()">Показать cookie</button>
+
+    <script>
+    function showCookie() {
+        alert(document.cookie);
+    }
+    </script>
+
+    <hr>
+
+    <h3>🛡️ Как работает CSP</h3>
+
+    <p>Сервер отправляет заголовок:</p>
+
+    <pre>Content-Security-Policy: ...</pre>
+
+    <p>Браузер читает его и говорит:</p>
+
+    <pre>"Я буду выполнять только разрешённый код"</pre>
+
+    <p><b>Почему это важно:</b></p>
+    <ul>
+        <li>Даже если XSS есть → JS может НЕ выполниться</li>
+        <li>Можно запретить inline-скрипты</li>
+        <li>Можно ограничить источники</li>
+    </ul>
+
+    <hr>
+
+    <h3>🧰 Режимы лаборатории</h3>
+
+    <ul>
+        <li><b>Vulnerable</b> → XSS работает</li>
+        <li><b>Secure</b> → Django autoescape / forms</li>
+        <li><b>Super Secure</b> → принудительное экранирование (escape)</li>
+        <li><b>CSP ON</b> → браузер блокирует JS</li>
+    </ul>
+
+    <hr>
+
+   <div style="
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 25px;
+    margin: 30px 0;
+    position: relative;
+    overflow: hidden;
+">
+    <!-- Градиентная рамка -->
+    <div style="
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #e53e3e, #dd6b20, #ecc94b);
+        border-radius: 12px;
+        z-index: -1;
+    "></div>
+
+    <div style="position: relative; z-index: 1;">
+        <h3 style="
+            color: #fed7d7;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        ">
+            <span style="font-size: 1.5em;">🔥</span>
+            Попробуй атаки прямо сейчас!
+        </h3>
+
+        <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 15px; margin: 15px 0;">
+            <h4 style="color: #f6ad55; margin-top: 0;">Готовые payload'ы:</h4>
+            <ul style="color: #e2e8f0; margin-bottom: 0;">
+                <li><code style="background: #4a5568; padding: 2px 6px; border-radius: 4px;">&lt;script&gt;alert(1)&lt;/script&gt;</code></li>
+                <li><code style="background: #4a5568; padding: 2px 6px; border-radius: 4px;">&lt;img src=x onerror=alert(1)&gt;</code></li>
+                <li><code style="background: #4a5568; padding: 2px 6px; border-radius: 4px;">&lt;svg onload=alert(1)&gt;</code></li>
+                <li><code style="background: #4a5568; padding: 2px 6px; border-radius: 4px;">&lt;script&gt;alert("Cookie: " + document.cookie))&lt;/script&gt;</code></li>
+            </ul>
+        </div>
+
+        <p style="color: #90cdf4; font-weight: 600; margin: 15px 0 5px 0;">🎯 Задачи для практики:</p>
+        <ul style="color: #e2e8f0;">
+            <li>Включи CSP и попробуй payload</li>
+            <li>Сравни vulnerable vs secure режимы</li>
+            <li>Проверь cookie через кнопку выше</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Форма -->
+<div style="
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 25px;
+    margin: 30px 0;
+    position: relative;
+    overflow: hidden;
+">
+    <!-- Градиентная рамка -->
+    <div style="
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #e53e3e, #dd6b20, #ecc94b);
+        border-radius: 12px;
+        z-index: -1;
+    "></div>
+
+    <div style="position: relative; z-index: 1;">
+        <h2 style="
+            color: #fed7d7;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5em;
+        ">
+            <span style="font-size: 1.5em;">🔧</span>
+            Тестовая среда для XSS‑атак
+        </h2>
+
+        <!-- Форма -->
+        <form method="get" style="margin: 20px 0;">
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+                <div style="flex: 3 0 250px;">
+                    <label for="payload" style="
+                display: block;
+                color: #e2e8f0;
+                font-weight: 600;
+                margin-bottom: 8px;
+            ">Введите payload:</label>
+            <input
+                type="text"
+                id="payload"
+                name="q"
+                placeholder="Например: &lt;script&gt;alert(1)&lt;/script&gt;"
+                value="{{ query }}"
+                style="
+                width: 100%;
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid #4a5568;
+                background: #1a202c;
+                color: #fff;
+                font-family: monospace;
+            ">
+        </div>
+
+        <div style="flex: 1 0 150px;">
+            <label for="mode" style="
+                display: block;
+                color: #e2e8f0;
+                font-weight: 600;
+                margin-bottom: 8px;
+            ">Режим:</label>
+            <select name="mode" id="mode" style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #4a5568;
+                background: #1a202c;
+                color: #fff;
+            ">
+                <option value="vulnerable" {% if mode == "vulnerable" %}selected{% endif %}>
+                    ❌ Vulnerable (уязвимый)
+                </option>
+                <option value="secure" {% if mode == "secure" %}selected{% endif %}>
+                    ⚠️ Secure (защищённый, Forms)
+                </option>
+                <option value="super_secure" {% if mode == "super_secure" %}selected{% endif %}>
+                    🛡️ Super Secure (escape)
+                </option>
+            </select>
+        </div>
+
+        <div style="flex: 1 0 150px;">
+            <label for="csp" style="
+                display: block;
+                color: #e2e8f0;
+                font-weight: 600;
+                margin-bottom: 8px;
+            ">CSP:</label>
+            <select name="csp" id="csp" style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #4a5568;
+                background: #1a202c;
+                color: #fff;
+            ">
+                <option value="off" {% if csp == "off" %}selected{% endif %}>CSP OFF</option>
+                <option value="on" {% if csp == "on" %}selected{% endif %}>CSP ON</option>
+            </select>
+        </div>
+
+        <button type="submit" style="
+            padding: 12px 24px;
+            background: linear-gradient(to right, #48bb78, #38a169);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            Отправить
+        </button>
+    </div>
+</form>
+
+<hr style="border-color: #4a5568; margin: 25px 0;">
+
+<div style="background: rgba(0,0,0,0.2); border-radius: 10px; padding: 20px;">
+    <h3 style="
+        color: #f6e05e;
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    ">
+        <span style="font-size: 0.9em;">🎯</span> Результат:
+    </h3>
+
+    {% if mode == "vulnerable" %}
+        <!-- ❌ УЯЗВИМО -->
+        <div style="
+            background: #1a202c;
+            border: 2px solid #e53e3e;
+            border-radius: 8px;
+            padding: 15px;
+            color: #fed7d7;
+            font-family: monospace;
+        ">{{ query|safe }}</div>
+        <p style="color: #e53e3e; margin-top: 10px;">⚠️ Внимание: в этом режиме XSS‑атаки работают!</p>
+    {% else %}
+        <!-- ✅ безопасно -->
+        <div style="
+            background: #1a202c;
+            border: 2px solid #48bb78;
+            border-radius: 8px;
+            padding: 15px;
+            color: #c6f6d5;
+            font-family: monospace;
+        ">{{ query }}</div>
+        <p style="color: #48bb78; margin-top: 10px;">✅ Ввод экранирован — XSS не сработает.</p>
+    {% endif %}
+
+    <p style="color: #48bb78; "margin-top: 15px;">
+        Режим:
+        <b>
+            {% if mode == "vulnerable" %}
+                ❌ Vulnerable
+            {% elif mode == "secure" %}
+                ⚠️ Secure (forms / autoescape)
+            {% elif mode == "super_secure" %}
+                🛡️ Super Secure (escape)
+            {% endif %}
+        </b>
+    </p>
+</div>
+</div>
+</div>
 
 {% endblock %}

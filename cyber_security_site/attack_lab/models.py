@@ -32,3 +32,14 @@ class Lab(models.Model):
 
     def __str__(self):
         return self.title
+
+
+# Модель формы с комментариями, для проверки Stored XSS
+class Comment(models.Model):
+    # введенный текст в форме
+    text = models.CharField(max_length=200)
+    # дата создания комментария
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.text
