@@ -16,8 +16,6 @@ from django.contrib.auth.models import User
 
 # Хранилище файлов Django
 from django.core.files.storage import FileSystemStorage
-
-# Импорт для выполнения raw SQL запросов
 from django.db import connection
 from django.shortcuts import render
 
@@ -185,51 +183,102 @@ def xss_dom(request):
 
 def sqli_lab(request):
     """
-    SQL Injection лаборатория.
-
-    Пример атаки:
-    ' OR 1=1 --
+    Лаборатория SQL Injection в Django с двумя режимами: уязвимым и защищённым
+    В уязвимом режиме используется строковая интерполяция, что позволяет выполнять SQL-инъекции
+    В защищённом — параметризованные запросы, которые предотвращают выполнение вредоносного SQL-кода
     """
-
+    # result — переменная для хранения результата SQL-запроса
+    # изначально None (если пользователь ещё ничего не отправлял)
     result = None
 
-    mode = request.GET.get("mode", "vulnerable")
+    # 🔹 Получаем текущую модель пользователя (тут используется кастомный пользователь accounts.User)
+    from django.contrib.auth import get_user_model
 
+    User = get_user_model()
+
+    # 🔹 Получаем имя таблицы в базе данных
+    # Например: "accounts_user"
+    table_name = User._meta.db_table
+
+    # 🔹 Проверяем, была ли отправлена форма
     if request.method == "POST":
 
+        # 🔹 Получаем данные из формы
+        # request.POST — словарь с данными формы
         username = request.POST.get("username")
         password = request.POST.get("password")
 
+        # 🔹 Получаем выбранный режим работы лаборатории
+        # если не передан — по умолчанию "vulnerable"
+        mode = request.POST.get("mode", "vulnerable")
+
+        # =====================================================
+        # ❌ УЯЗВИМЫЙ РЕЖИМ (VULNERABLE)
+        # =====================================================
         if mode == "vulnerable":
 
-            # УЯЗВИМЫЙ КОД
-            # Используется строковая интерполяция
-            # что позволяет внедрить SQL код
+            # ⚠️ ВАЖНО:
+            # Здесь используется f-string → это ОПАСНО
+            # пользовательский ввод напрямую вставляется в SQL
+            # → это и есть SQL Injection
 
             query = f"""
-                SELECT * FROM auth_user
+                SELECT id, username, email
+                FROM {table_name}
                 WHERE username = '{username}'
-                AND password = '{password}'
             """
 
+            # 🔹 Открываем курсор для работы с БД
+            # cursor позволяет выполнять SQL-запросы
             with connection.cursor() as cursor:
+
+                # 🔹 Выполняем SQL-запрос
+                # если в username есть payload → он выполнится
                 cursor.execute(query)
+
+                # 🔹 Получаем ВСЕ строки результата
+                # результат — список кортежей [(id, username, email), ...]
                 result = cursor.fetchall()
 
+        # =====================================================
+        # 🛡️ ЗАЩИЩЕННЫЙ РЕЖИМ (SECURE)
+        # =====================================================
         else:
 
-            # БЕЗОПАСНЫЙ КОД
-            # Используются параметризованные запросы
+            # ✅ Здесь используется параметризованный запрос
+            # %s — это placeholder (заглушка)
+            # значения передаются отдельно → SQL Injection НЕ работает
 
-            query = """
-                SELECT * FROM auth_user
-                WHERE username=%s AND password=%s
+            query = f"""
+                SELECT id, username, email
+                FROM {table_name}
+                WHERE username = %s
             """
 
             with connection.cursor() as cursor:
-                cursor.execute(query, [username, password])
+
+                # 🔹 Передаём параметры отдельно
+                # Django экранирует их автоматически
+                # → пользовательский ввод НЕ становится SQL-кодом
+                cursor.execute(query, [username])
+
+                # 🔹 Получаем результат
                 result = cursor.fetchall()
 
+    # =====================================================
+    # 🔹 ЕСЛИ СТРАНИЦА ОТКРЫТА ВПЕРВЫЕ (GET запрос)
+    # =====================================================
+    else:
+        # по умолчанию показываем уязвимый режим
+        mode = "vulnerable"
+
+    # =====================================================
+    # 🔹 РЕНДЕР ШАБЛОНА
+    # =====================================================
+
+    # Передаём данные в HTML:
+    # result — результат SQL запроса
+    # mode — текущий режим (чтобы отобразить в UI)
     return render(request, "attack_lab/sqli_lab.html", {"result": result, "mode": mode})
 
 

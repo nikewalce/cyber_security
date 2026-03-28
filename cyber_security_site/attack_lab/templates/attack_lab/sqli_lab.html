@@ -1,24 +1,161 @@
 {% extends 'base.html' %}
-
 {% block content %}
 
-<h2>SQL Injection Lab</h2>
+<!-- 🔗 НАВИГАЦИЯ -->
+<nav>
+    <span class="fw-bold text-warning">SQL Injection Lab</span>
+</nav>
 
-<p style="color:red;">
-⚠ WARNING: This page intentionally contains vulnerable SQL code.
-</p>
+<hr>
 
-<form method="post">
-    {% csrf_token %}
+<div style="
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    border-radius: 12px;
+    padding: 25px;
+    margin: 30px 0;
+">
 
-    <input name="username" placeholder="username">
-    <input name="password" placeholder="password">
+    <h2 style="color:#fed7d7;">💉 SQL Injection</h2>
 
-    <button type="submit">Login</button>
-</form>
+    <!-- 📚 ОБУЧЕНИЕ -->
+    <div style="background: rgba(0,0,0,0.3); padding:20px; border-radius:10px;">
 
-{% if result %}
-<p>Login successful!</p>
-{% endif %}
+        <h3 style="color:#f6e05e;">📚 Как работает SQL Injection?</h3>
+
+        <p style="color:#e2e8f0;">
+            Пользователь вводит данные → они вставляются в SQL →
+            база выполняет запрос → злоумышленник может изменить логику.
+        </p>
+
+        <pre style="background:#1a202c; padding:10px; color:#c3daff;">
+SELECT * FROM users WHERE username = 'input'
+        </pre>
+
+        <hr style="border-color:#4a5568;">
+
+        <h3 style="color:#e53e3e;">💥 Пример атаки</h3>
+
+        <pre style="background:#1a202c; padding:10px; color:#fed7d7;">
+' OR 1=1 --
+        </pre>
+
+        <p style="color:#e2e8f0;">
+            Условие всегда TRUE → возвращаются все пользователи.
+        </p>
+
+        <hr style="border-color:#4a5568;">
+
+        <h3 style="color:#ecc94b;">🧠 Типы SQLi</h3>
+        <ul style="color:#e2e8f0;">
+            <li>Auth bypass</li>
+            <li>UNION-based</li>
+            <li>Error-based</li>
+            <li>Blind SQLi</li>
+        </ul>
+
+        <hr style="border-color:#4a5568;">
+
+        <h3 style="color:#48bb78;">🛡️ Защита</h3>
+        <ul style="color:#e2e8f0;">
+            <li>Параметризованные запросы</li>
+            <li>Django ORM</li>
+            <li>Валидация ввода</li>
+        </ul>
+
+    </div>
+
+    <!-- 📝 ФОРМА -->
+    <form method="post" style="margin-top:25px;">
+        {% csrf_token %}
+
+        <div style="margin-bottom:15px;">
+            <input name="username" placeholder="username"
+                   style="width:100%; padding:10px; border-radius:8px; background:#1a202c; color:white;">
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <input name="password" placeholder="password"
+                   style="width:100%; padding:10px; border-radius:8px; background:#1a202c; color:white;">
+        </div>
+
+        <!-- ⚙️ режим -->
+        <select name="mode" style="
+            width:100%;
+            padding:10px;
+            border-radius:8px;
+            background:#1a202c;
+            color:white;
+            margin-bottom:15px;
+        ">
+            <option value="vulnerable" {% if mode == "vulnerable" %}selected{% endif %}>
+                ❌ Vulnerable
+            </option>
+            <option value="secure" {% if mode == "secure" %}selected{% endif %}>
+                ⚠️ Secure
+            </option>
+            <option value="super_secure" {% if mode == "super_secure" %}selected{% endif %}>
+                🛡️ Super Secure
+            </option>
+        </select>
+
+        <button type="submit" style="
+            padding:10px 20px;
+            background:#48bb78;
+            border:none;
+            border-radius:8px;
+            color:white;
+            cursor:pointer;
+        ">
+            🚀 Execute
+        </button>
+    </form>
+
+    <!-- 🧪 PAYLOADS -->
+    <div style="margin-top:25px;">
+        <h3 style="color:#f6e05e;">🧪 Попробуй payload:</h3>
+
+        <pre style="background:#1a202c; padding:10px; color:#fed7d7;">
+' OR 1=1 --
+admin' --
+' UNION SELECT 1,2,3 --
+        </pre>
+    </div>
+
+    <!-- 🧾 SQL -->
+    <div style="margin-top:25px;">
+        <h3 style="color:#3182ce;">🧾 SQL Query:</h3>
+
+        <pre style="background:#1a202c; padding:10px; color:#c3daff;">
+{{ query }}
+        </pre>
+    </div>
+
+    <!-- 📊 RESULT -->
+    <div style="margin-top:25px;">
+        <h3 style="color:#f6e05e;">📊 Result:</h3>
+
+        {% if result %}
+            <pre style="background:#1a202c; padding:10px; color:#c6f6d5;">
+{{ result }}
+            </pre>
+
+            <p>
+                Rows returned: <b>{{ result|length }}</b>
+            </p>
+
+            {% if mode == "vulnerable" %}
+                <p style="color:#e53e3e;">⚠ SQL Injection работает</p>
+            {% elif mode == "secure" %}
+                <p style="color:#dd6b20;">⚠ Частичная защита</p>
+            {% else %}
+                <p style="color:#48bb78;">✅ Защищено</p>
+            {% endif %}
+
+        {% else %}
+            <p style="color:#a0aec0;">Нет результатов</p>
+        {% endif %}
+    </div>
+
+</div>
 
 {% endblock %}
