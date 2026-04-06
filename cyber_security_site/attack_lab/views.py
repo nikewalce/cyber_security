@@ -12,7 +12,7 @@ import requests
 from django.conf import settings
 
 # Модель пользователей Django
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 # Хранилище файлов Django
 from django.core.files.storage import FileSystemStorage
@@ -398,8 +398,8 @@ def idor_lab(request):
 
             # УЯЗВИМЫЙ КОД
             # Любой пользователь может просмотреть любой профиль
-
-            user = User.objects.filter(id=user_id).first()
+            User_custom_model = get_user_model()
+            user = User_custom_model.objects.filter(id=user_id).first()
 
         else:
 
