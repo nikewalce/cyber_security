@@ -1,3 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def logs_analysis_view(request):
+    return render(request, "logs_analysis.html")

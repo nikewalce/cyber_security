@@ -12,6 +12,7 @@ urlpatterns = [
     path("categories/", include("knowledge_base.urls")),
     path("roadmap/", include("roadmap.urls")),
     path("security_tools/", include("security_tools.urls")),
+    path("logs/", include("logs_analysis.urls")),
     path("", include("main.urls")),
 ]
 # если запрос начинается с /media/ — брать файл из папки MEDIA_ROOT

@@ -206,7 +206,7 @@ def sqli_lab(request):
         # 🔹 Получаем данные из формы
         # request.POST — словарь с данными формы
         username = request.POST.get("username")
-        password = request.POST.get("password")
+        # password = request.POST.get("password")
 
         # 🔹 Получаем выбранный режим работы лаборатории
         # если не передан — по умолчанию "vulnerable"
@@ -454,9 +454,16 @@ def ssrf_lab(request):
                 else:
                     r = requests.get(url)
                     response = r.text[:500]
-
-        except:
-            response = "Request failed"
+        except requests.exceptions.ConnectionError:
+            response = "Ошибка соединения: невозможно связаться с хостом"
+        except requests.exceptions.Timeout:
+            response = "Тайм-аут запроса: серверу потребовалось слишком много времени, чтобы ответить"
+        except requests.exceptions.TooManyRedirects:
+            response = "Слишком много перенаправлений"
+        except requests.exceptions.InvalidURL:
+            response = "Неверный формат URL"
+        except requests.exceptions.RequestException as e:
+            response = f"Запрос не выполнен: {str(e)}"
 
     return render(
         request, "attack_lab/ssrf_lab.html", {"response": response, "mode": mode}
@@ -542,9 +549,16 @@ def path_traversal_lab(request):
         try:
             with open(filepath) as f:
                 content = f.read()
-        except:
-            if not content:
-                content = "File not found"
+        except PermissionError:
+            content = "Доступ запрещен: недостаточно прав"
+        except IsADirectoryError:
+            content = "Невозможно прочитать каталог как файл"
+        except UnicodeDecodeError:
+            content = (
+                "Ошибка кодирования файла: невозможно декодировать содержимое файла"
+            )
+        except OSError as e:
+            content = f"Ошибка ОС: {str(e)}"
 
     return render(
         request,
