@@ -10,7 +10,6 @@ import requests
 
 # Настройки Django проекта
 from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
 # Модель пользователей Django
 from django.contrib.auth import get_user_model
@@ -19,6 +18,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.storage import FileSystemStorage
 from django.db import connection
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
 # Импорт форм
 from .forms import CommentForm, XSSForm
@@ -287,6 +287,7 @@ def sqli_lab(request):
 # CSRF Lab
 # -------------------------------
 
+
 @csrf_exempt
 def csrf_lab_vulnerable(request):
     """
@@ -299,50 +300,43 @@ def csrf_lab_vulnerable(request):
 
     Это имитирует реальную уязвимость
     """
-
     # Сообщение пользователю (результат "перевода")
     message = None
-
     # Для отладки — покажем весь POST-запрос
     post_request = None
-
     # CSRF токен, пришедший в теле запроса (если есть)
     csrf_token_in_post = None
-
     # CSRF токен из cookies браузера
     csrf_cookie = None
-
     # Проверяем, что это POST-запрос (форма отправлена)
     if request.method == "POST":
-
         # Получаем сумму перевода из формы
         amount = request.POST.get("amount")
-
         # ❗ Здесь нет проверки CSRF → уязвимость
         message = f"Vulnerable Transferred {amount}$"
-
         # Сохраняем весь POST для отображения в шаблоне
         post_request = request.POST
-
         # Пытаемся получить CSRF токен из формы
         # В атаке его НЕ будет
         csrf_token_in_post = request.POST.get("csrfmiddlewaretoken")
-
         # Получаем CSRF токен из cookies
         # Он есть, потому что браузер автоматически его отправляет
         csrf_cookie = request.COOKIES.get("csrftoken")
-
         # 💡 Важно:
         # cookie есть, а токена в POST нет → это и есть CSRF
-
     # Рендерим страницу и передаём данные для анализа
-    return render(request, "attack_lab/csrf_lab.html", {
-        "message": message,
-        "mode": "vulnerable",
-        "post_request": post_request,
-        "csrf_token_in_post": csrf_token_in_post,
-        "csrf_cookie": csrf_cookie,
-    })
+    return render(
+        request,
+        "attack_lab/csrf_lab.html",
+        {
+            "message": message,
+            "mode": "vulnerable",
+            "post_request": post_request,
+            "csrf_token_in_post": csrf_token_in_post,
+            "csrf_cookie": csrf_cookie,
+        },
+    )
+
 
 @csrf_protect
 def csrf_lab_safe(request):
@@ -356,43 +350,37 @@ def csrf_lab_safe(request):
         2. CSRF токен из POST
     - Если они не совпадают или токена нет → 403 ошибка
     """
-
     message = None
     post_request = None
     csrf_token_in_post = None
     csrf_cookie = None
-
     if request.method == "POST":
-
         # ❗ ВАЖНО:
         # Если CSRF токена нет — до этой строки код НЕ дойдет
         # Django вернет 403 раньше (на уровне middleware)
-
         amount = request.POST.get("amount")
-
         message = f"Secure transfer of {amount}$"
-
         post_request = request.POST
-
         # В безопасном режиме токен ОБЯЗАН быть
         csrf_token_in_post = request.POST.get("csrfmiddlewaretoken")
-
         csrf_cookie = request.COOKIES.get("csrftoken")
+    return render(
+        request,
+        "attack_lab/csrf_lab.html",
+        {
+            "message": message,
+            "mode": "safe",
+            "post_request": post_request,
+            "csrf_token_in_post": csrf_token_in_post,
+            "csrf_cookie": csrf_cookie,
+        },
+    )
 
-    return render(request, "attack_lab/csrf_lab.html", {
-        "message": message,
-        "mode": "safe",
-        "post_request": post_request,
-        "csrf_token_in_post": csrf_token_in_post,
-        "csrf_cookie": csrf_cookie,
-    })
 
 def csrf_attack(request):
     """
     💣 СТРАНИЦА АТАКУЮЩЕГО
-
     Эта страница имитирует злоумышленника.
-
     В шаблоне:
     - есть скрытая форма
     - она автоматически отправляется через JS
@@ -403,8 +391,8 @@ def csrf_attack(request):
 
     👉 Это и есть CSRF-атака
     """
-
     return render(request, "attack_lab/csrf_attack.html")
+
 
 # -------------------------------
 # File Upload Lab

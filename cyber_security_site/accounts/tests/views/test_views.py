@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 # без необходимости обновлять все ссылки в коде и шаблонах
 # from django.urls import reverse
 
+
 @pytest.mark.app_name(
     "accounts"
 )  # кастомный маркер: указываем, какое приложение тестируем
@@ -13,7 +14,10 @@ def test_content_type(response):
     """
     Проверяем, что сервер отдает HTML
     """
-    assert response.headers["Content-Type"].startswith("text/html"),  f"Неверный Content-Type: {response.headers['Content-Type']}"
+    assert response.headers["Content-Type"].startswith(
+        "text/html"
+    ), f"Неверный Content-Type: {response.headers['Content-Type']}"
+
 
 @pytest.mark.app_name(
     "accounts"
@@ -26,10 +30,8 @@ def test_accounts_title(response):
 
     h1_tags = soup.find_all("h1")
 
-    assert any(
-        h1.text.strip() == "Список аккаунтов"
-        for h1 in h1_tags
-    )
+    assert any(h1.text.strip() == "Список аккаунтов" for h1 in h1_tags)
+
 
 @pytest.mark.app_name(
     "accounts"
@@ -40,6 +42,7 @@ def test_context_has_request(context):
     """
     assert "request" in context
 
+
 @pytest.mark.app_name(
     "accounts"
 )  # кастомный маркер: указываем, какое приложение тестируем
@@ -49,6 +52,7 @@ def test_user_anonymous(context):
     """
     assert context["user"].is_anonymous
 
+
 @pytest.mark.app_name(
     "accounts"
 )  # кастомный маркер: указываем, какое приложение тестируем
@@ -57,6 +61,7 @@ def test_csrf_in_context(context):
     Проверяем наличие CSRF токена в контексте
     """
     assert "csrf_token" in context
+
 
 @pytest.mark.app_name(
     "accounts"
@@ -68,6 +73,7 @@ def test_csrf_in_html(response):
     html = response.content.decode()
     assert "csrfmiddlewaretoken" in html
 
+
 @pytest.mark.app_name(
     "accounts"
 )  # кастомный маркер: указываем, какое приложение тестируем
@@ -78,6 +84,7 @@ def test_template_used(response):
     template_names = [t.name for t in response.templates]
 
     assert "accounts/accounts_view.html" in template_names
+
 
 @pytest.mark.app_name(
     "accounts"
@@ -97,6 +104,7 @@ def test_no_reflected_xss(client):
     # Проверяем, что он экранирован
     assert "&lt;script&gt;" in html or "alert" not in html
 
+
 @pytest.mark.app_name(
     "accounts"
 )  # кастомный маркер: указываем, какое приложение тестируем
@@ -107,6 +115,7 @@ def test_csrf_cookie(client, url):
     client.get(url)
 
     assert "csrftoken" in client.cookies
+
 
 @pytest.mark.app_name(
     "accounts"

@@ -124,9 +124,11 @@ def urls_by_app():
 
     return _get_urls
 
+
 @pytest.fixture
-def response(client, url): # client - встроенная фикстура Django
+def response(client, url):  # client - встроенная фикстура Django
     return client.get(url)
+
 
 @pytest.fixture
 def context(response):

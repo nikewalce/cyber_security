@@ -1,10 +1,11 @@
 import pytest
 
+
 @pytest.mark.django_db
 @pytest.mark.app_name(
     "accounts"
 )  # кастомный маркер: указываем, какое приложение тестируем
-def test_urls(response, url): # client - встроенная фикстура Django
+def test_urls(response, url):  # client - встроенная фикстура Django
     """
     Тест проверяет, что все URL приложения:
     - доступны через GET
