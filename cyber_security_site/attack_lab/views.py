@@ -10,6 +10,7 @@ import requests
 
 # Настройки Django проекта
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
 # Модель пользователей Django
 from django.contrib.auth import get_user_model
@@ -286,38 +287,124 @@ def sqli_lab(request):
 # CSRF Lab
 # -------------------------------
 
-
-def csrf_lab(request):
+@csrf_exempt
+def csrf_lab_vulnerable(request):
     """
-    CSRF лаборатория.
+    🔴 УЯЗВИМАЯ ВЕРСИЯ (CSRF отключен)
 
-    Демонстрирует роль CSRF токена.
+    @csrf_exempt:
+    - Полностью отключает CSRF-проверку для этого view
+    - Django НЕ будет проверять токен
+    - Любой POST-запрос будет принят (даже от злоумышленника)
+
+    Это имитирует реальную уязвимость
+    """
+
+    # Сообщение пользователю (результат "перевода")
+    message = None
+
+    # Для отладки — покажем весь POST-запрос
+    post_request = None
+
+    # CSRF токен, пришедший в теле запроса (если есть)
+    csrf_token_in_post = None
+
+    # CSRF токен из cookies браузера
+    csrf_cookie = None
+
+    # Проверяем, что это POST-запрос (форма отправлена)
+    if request.method == "POST":
+
+        # Получаем сумму перевода из формы
+        amount = request.POST.get("amount")
+
+        # ❗ Здесь нет проверки CSRF → уязвимость
+        message = f"Vulnerable Transferred {amount}$"
+
+        # Сохраняем весь POST для отображения в шаблоне
+        post_request = request.POST
+
+        # Пытаемся получить CSRF токен из формы
+        # В атаке его НЕ будет
+        csrf_token_in_post = request.POST.get("csrfmiddlewaretoken")
+
+        # Получаем CSRF токен из cookies
+        # Он есть, потому что браузер автоматически его отправляет
+        csrf_cookie = request.COOKIES.get("csrftoken")
+
+        # 💡 Важно:
+        # cookie есть, а токена в POST нет → это и есть CSRF
+
+    # Рендерим страницу и передаём данные для анализа
+    return render(request, "attack_lab/csrf_lab.html", {
+        "message": message,
+        "mode": "vulnerable",
+        "post_request": post_request,
+        "csrf_token_in_post": csrf_token_in_post,
+        "csrf_cookie": csrf_cookie,
+    })
+
+@csrf_protect
+def csrf_lab_safe(request):
+    """
+    🟢 ЗАЩИЩЕННАЯ ВЕРСИЯ
+
+    @csrf_protect:
+    - Включает CSRF-проверку (обычно и так включена через middleware)
+    - Django сравнивает:
+        1. CSRF cookie
+        2. CSRF токен из POST
+    - Если они не совпадают или токена нет → 403 ошибка
     """
 
     message = None
-
-    mode = request.GET.get("mode", "vulnerable")
+    post_request = None
+    csrf_token_in_post = None
+    csrf_cookie = None
 
     if request.method == "POST":
 
+        # ❗ ВАЖНО:
+        # Если CSRF токена нет — до этой строки код НЕ дойдет
+        # Django вернет 403 раньше (на уровне middleware)
+
         amount = request.POST.get("amount")
 
-        if mode == "vulnerable":
+        message = f"Secure transfer of {amount}$"
 
-            # УЯЗВИМАЯ версия
-            # CSRF токен не проверяется
-            message = f"Transferred {amount}$"
+        post_request = request.POST
 
-        else:
+        # В безопасном режиме токен ОБЯЗАН быть
+        csrf_token_in_post = request.POST.get("csrfmiddlewaretoken")
 
-            # БЕЗОПАСНАЯ версия
-            # Django автоматически проверяет CSRF токен
-            message = f"Secure transfer of {amount}$"
+        csrf_cookie = request.COOKIES.get("csrftoken")
 
-    return render(
-        request, "attack_lab/csrf_lab.html", {"message": message, "mode": mode}
-    )
+    return render(request, "attack_lab/csrf_lab.html", {
+        "message": message,
+        "mode": "safe",
+        "post_request": post_request,
+        "csrf_token_in_post": csrf_token_in_post,
+        "csrf_cookie": csrf_cookie,
+    })
 
+def csrf_attack(request):
+    """
+    💣 СТРАНИЦА АТАКУЮЩЕГО
+
+    Эта страница имитирует злоумышленника.
+
+    В шаблоне:
+    - есть скрытая форма
+    - она автоматически отправляется через JS
+
+    Браузер:
+    - автоматически добавляет cookies (включая сессию и csrftoken)
+    - НО не добавляет csrfmiddlewaretoken в POST
+
+    👉 Это и есть CSRF-атака
+    """
+
+    return render(request, "attack_lab/csrf_attack.html")
 
 # -------------------------------
 # File Upload Lab

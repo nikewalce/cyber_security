@@ -4,16 +4,41 @@
 
 <h2>CSRF Lab</h2>
 
+<!-- 🔁 Переключатель режимов -->
+<div style="margin-bottom: 15px;">
+    <a href="{% url 'csrf_vulnerable' %}">
+        <button type="button"
+            {% if mode == "vulnerable" %}style="font-weight: bold;"{% endif %}>
+            Vulnerable
+        </button>
+    </a>
+
+    <a href="{% url 'csrf_safe' %}">
+        <button type="button"
+            {% if mode == "safe" %}style="font-weight: bold;"{% endif %}>
+            Safe
+        </button>
+    </a>
+    <a href="{% url 'csrf_attack' %}">
+        <button>attack page</button>
+    </a>
+</div>
+
 <form method="post">
-    {% csrf_token %}
+    {% if mode == "safe" %}
+        {% csrf_token %}
+    {% endif %}
 
     <input name="amount" placeholder="Amount">
-
     <button type="submit">Transfer</button>
 </form>
 
 {% if message %}
 <p>{{ message }}</p>
+<p>Post: {{ post_request }}</p>
+<p>csrf_token_in_post: {{ csrf_token_in_post }}</p>
+<p>csrf_cookie: {{ csrf_cookie }}</p>
 {% endif %}
+
 
 {% endblock %}

