@@ -123,3 +123,11 @@ def urls_by_app():
         return collect_urls(get_resolver(), app_name)
 
     return _get_urls
+
+@pytest.fixture
+def response(client, url): # client - встроенная фикстура Django
+    return client.get(url)
+
+@pytest.fixture
+def context(response):
+    return response.context[-1] if response.context else {}

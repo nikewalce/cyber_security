@@ -10,4 +10,5 @@ from django.shortcuts import render
 #
 # Profile edit form (показать mass assignment и безопасный whitelist полей).
 def accounts_view(request):
+    print(render(request, "accounts/accounts_view.html"))
     return render(request, "accounts/accounts_view.html")
